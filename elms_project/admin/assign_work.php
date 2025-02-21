@@ -1,48 +1,51 @@
 <?php
 session_start();
 include('../config.php');
+
 if (!isset($_SESSION['admin'])) {
     header("Location: admin_login.php");
     exit();
 }
 
-if (isset($_POST['change_password'])) {
-    $currentPassword = md5($_POST['current_password']);
-    $newPassword = md5($_POST['new_password']);
-    $confirmPassword = md5($_POST['confirm_password']);
+if (isset($_POST['assign_work'])) {
+    $empid = $_POST['empid'];
+    $firstname = $_POST['firstname'];
+    $work = $_POST['work'];
+    $description = $_POST['description'];
+    $deadline = $_POST['deadline'];
+    $status = 'Pending';  // Default status
+    $assigned_date = date('Y-m-d H:i:s');  // Current date and time
 
-    $admin = $_SESSION['admin'];
-    $query = "SELECT Password FROM tbladmin WHERE UserName='$admin'";
-    $result = mysqli_query($conn, $query);
-    $row = mysqli_fetch_assoc($result);
-
-    if ($currentPassword == $row['Password']) {
-        if ($newPassword == $confirmPassword) {
-            $updateQuery = "UPDATE tbladmin SET Password='$newPassword' WHERE UserName='$admin'";
-            mysqli_query($conn, $updateQuery);
-            echo "<script>alert('Password changed successfully');</script>";
-        } else {
-            echo "<script>alert('New Password and Confirm Password do not match');</script>";
-        }
+    $query = "INSERT INTO tblwork (empid, firstname, work, description, deadline, status, assigned_date) VALUES ('$empid', '$firstname', '$work', '$description', '$deadline', '$status', '$assigned_date')";
+    if (mysqli_query($conn, $query)) {
+        echo "<script>alert('Work assigned successfully');</script>";
     } else {
-        echo "<script>alert('Current Password is incorrect');</script>";
+        echo "<script>alert('Error assigning work');</script>";
     }
 }
 ?>
 
-<h2>Change Password</h2>
+<h2>Assign Work</h2>
 <form method="POST">
     <div class="input-group">
-        <input type="password" name="current_password" required>
-        <label>Current Password</label>
+        <input type="text" name="empid" required>
+        <label>Employee ID</label>
     </div>
     <div class="input-group">
-        <input type="password" name="new_password" required>
-        <label>New Password</label>
+        <input type="text" name="firstname" required>
+        <label>First Name</label>
     </div>
     <div class="input-group">
-        <input type="password" name="confirm_password" required>
-        <label>Confirm Password</label>
+        <input type="text" name="work" required>
+        <label>Work</label>
     </div>
-    <button type="submit" name="change_password" class="button">Change Password</button>
+    <div class="input-group">
+        <textarea name="description" required></textarea>
+        <label>Description</label>
+    </div>
+    <div class="input-group">
+        <input type="date" name="deadline" required>
+        <label>Deadline</label>
+    </div>
+    <button type="submit" name="assign_work" class="button">Assign Work</button>
 </form>
